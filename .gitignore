@@ -12,6 +12,13 @@ aimp_rem.*/
 
 vcpkg_installed
 
+# zig (MinGW) build: output and locally downloaded toolchain/dependencies
+build/out/
+/zig-*/
+/cpp-httplib-*/
+/json-*/
+/IXWebSocket-*/
+
 .vs/
 .vscode/
 *.user

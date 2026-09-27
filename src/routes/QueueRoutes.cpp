@@ -101,6 +101,8 @@ static void HandleModeSongInQueue(MyPlugin* plugin, const httplib::Request& req,
             res.status = 500;
             res.set_content(json{ {"error", "Failed to move song within the queue."} }.dump(), "application/json");
         }
+
+        task->Release();
     }
     catch (const json::exception)
     {
@@ -111,31 +113,23 @@ static void HandleModeSongInQueue(MyPlugin* plugin, const httplib::Request& req,
 
 static void HandleGetQueue(MyPlugin* plugin, const httplib::Request& req, httplib::Response& res)
 {
-    try
-    {
-        CGetQueueTask* task = new CGetQueueTask(plugin);
+    CGetQueueTask* task = new CGetQueueTask(plugin);
 
-        HRESULT hr = plugin->GetThreadService()->ExecuteInMainThread(task, AIMP_SERVICE_THREADS_FLAGS_WAITFOR);
+    HRESULT hr = plugin->GetThreadService()->ExecuteInMainThread(task, AIMP_SERVICE_THREADS_FLAGS_WAITFOR);
 
-        if (SUCCEEDED(hr))
-        {
-            if (!task->HasErrors())
-            {
-                res.status = 200;
-                res.set_content(task->GetResults().dump(), "applicationn/json");
-            }
-        }
-        else
-        {
-            res.status = 500;
-            res.set_content(json{ {"error", "Failed to get queue items."} }.dump(), "application/json");
-        }
-    }
-    catch (const json::exception)
+    if (SUCCEEDED(hr) && !task->HasErrors())
     {
-        res.status = 422;
-        res.set_content(json{ {"error", "Invalid data in JSON"} }.dump(), "application/json");
+        // replace: invalid UTF-8 in tags must not throw out of the handler and leak the task
+        res.status = 200;
+        res.set_content(task->GetResults().dump(-1, ' ', false, json::error_handler_t::replace), "application/json; charset=utf-8");
     }
+    else
+    {
+        res.status = 500;
+        res.set_content(json{ {"error", "Failed to get queue items."} }.dump(), "application/json");
+    }
+
+    task->Release();
 }
 
 void RegisterQueueRoutes(MyPlugin* plugin, const std::string& prefix)

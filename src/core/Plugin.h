@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <memory>
 #include <mutex>
 #include <thread>
@@ -21,14 +22,24 @@ namespace httplib
     class Server; 
 }
 
-namespace ix 
-{ 
-    class WebSocket; 
-    class WebSocketServer; 
+namespace ix
+{
+    class WebSocket;
+    class WebSocketServer;
 }
+
+class CPlaybackQueueExtension;
 
 static const GUID IID_IAIMPPlugin =
     {0x41494D50, 0x506C, 0x7567, {0x69, 0x6E, 0x48, 0x64, 0x72, 0x49, 0x44, 0x00}};
+
+/**
+ * @brief Converts an AIMP time value in seconds to the integer milliseconds used by every API response
+ */
+inline long long SecondsToMs(double seconds)
+{
+    return std::llround(seconds * 1000.0);
+}
 
 /**
  * @class MyPlugin
@@ -71,6 +82,9 @@ private:
     IAIMPServiceFileInfo* m_fileInfoService = nullptr;
     IAIMPUIForm* _uiForm = nullptr;
     IAIMPUILabel* _ipLabel = nullptr;
+
+    // PoC GetNext hook; created in Initialize, registered with AIMP only on request
+    CPlaybackQueueExtension* _playbackQueue = nullptr;
 
     // =========================================================================
     // Private Helper Methods
@@ -131,6 +145,12 @@ public:
      * @return Pointer to IAIMPServiceFileInfo
      */
     IAIMPServiceFileInfo* GetFileInfoService() const { return m_fileInfoService; }
+
+    /**
+     * @brief Gets the PoC playback queue extension (GetNext hook)
+     * @return Pointer to CPlaybackQueueExtension, valid between Initialize and Finalize
+     */
+    CPlaybackQueueExtension* GetPlaybackQueue() { return _playbackQueue; }
 
     /**
      * @brief Broadcasts JSON message to all connected WebSocket clients

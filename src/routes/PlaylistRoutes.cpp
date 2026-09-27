@@ -125,7 +125,7 @@ static void HandleGetPlaylistInfo(MyPlugin *plugin, const httplib::Request &req,
                 {"playlistId", r.id},
                 {"name", r.name},
                 {"itemCount", r.itemCount},
-                {"duration", r.duration},
+                {"duration", SecondsToMs(r.duration)},
                 {"playingIndex", r.playingIndex},
                 {"isReadOnly", r.isReadOnly} 
             };
@@ -227,7 +227,7 @@ static void HandleGetPlaylistItems(MyPlugin *plugin, const httplib::Request &req
                                 {"album", s.album},
                                 {"bitrate", s.bitrate},
                                 {"sampleRate", s.sampleRate},
-                                {"duration", s.duration}});
+                                {"duration", SecondsToMs(s.duration)}});
         }
         res.status = 200;
         res.set_content(response.dump(), "application/json; charset=utf-8");

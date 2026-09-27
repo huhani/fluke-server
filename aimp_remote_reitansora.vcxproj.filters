@@ -165,6 +165,15 @@
     <ClInclude Include="src\routes\QueueRoutes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\routes\PocRoutes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\PlaybackQueueExtension.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tasks\CMainThreadTask.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\dllmain.cpp">
@@ -267,6 +276,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\routes\QueueRoutes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\routes\PocRoutes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\PlaybackQueueExtension.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -18,7 +18,7 @@ json GetTrackInfo(MyPlugin* plugin)
     std::string artist = plugin->GetPropertyText(fileInfo, AIMP_FILEINFO_PROPID_ARTIST, "Unknown Artist");
     std::string album = plugin->GetPropertyText(fileInfo, AIMP_FILEINFO_PROPID_ALBUM, "Unknown Album");
     std::string genre = plugin->GetPropertyText(fileInfo, AIMP_FILEINFO_PROPID_GENRE, "Unknown Genre");
-    std::string filename = plugin->GetPropertyText(fileInfo, AIMP_FILEINFO_PROPID_FILENAME, "Unknown Format");
+    std::string filename = plugin->GetPropertyText(fileInfo, AIMP_FILEINFO_PROPID_FILENAME, "");
     std::string extension = "unknown";
 
     size_t dotPos = filename.find_last_of(".");
@@ -71,7 +71,8 @@ json GetTrackInfo(MyPlugin* plugin)
         {"album", album},
         {"artist", artist},
         {"bitrate", bitrate},
-        {"duration", duration},
+        {"duration", SecondsToMs(duration)},
+        {"filepath", filename},
         {"format", extension},
         {"genre", genre},
         {"playCount", playCount},

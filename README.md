@@ -28,6 +28,8 @@ The plugin uses AIMP's Remote Access API (window messages `WM_AIMP_COMMAND` and 
 
 ## API Endpoints
 
+All time values (`position`, `duration`) in responses and WebSocket events are integer milliseconds. The current track info and the `track_changed` event include `filepath`, the file path or URL AIMP is playing, which identifies the track uniquely.
+
 ### Player
 
 | Method | Path                   | Description                           |
@@ -98,6 +100,18 @@ All managed via vcpkg manifest (`vcpkg.json`):
 2. Build the solution. vcpkg will automatically restore dependencies.
 3. The output DLL (`aimp_remote_reitansora.dll`) will be placed in the build output directory.
 
+### Alternative: zig (MinGW) build
+
+Builds the 32-bit DLL without Visual Studio or vcpkg, using [zig](https://ziglang.org) as the C++ compiler (`x86-windows-gnu` target, libc++ linked statically).
+
+1. Download and extract into the repository root (these folders are git-ignored):
+   - zig 0.16.0 for an **x86_64 Windows host** (`zig-x86_64-windows-0.16.0/`). The x86 host build runs out of memory while building libc++.
+   - [cpp-httplib](https://github.com/yhirose/cpp-httplib) 0.57.1 (`cpp-httplib-0.57.1/`)
+   - [nlohmann/json](https://github.com/nlohmann/json) 3.12.0 (`json-3.12.0/`)
+   - [IXWebSocket](https://github.com/machinezone/IXWebSocket) 12.0.1 (`IXWebSocket-12.0.1/`)
+2. Run `bash build/build-zig.sh` from Git Bash. Folder locations can be overridden with `ZIG`, `HTTPLIB_DIR`, `JSON_DIR` and `IXWEBSOCKET_DIR`.
+3. The DLL is written to `build/out/aimp_remote_reitansora.dll`.
+
 ### Installation
 
 Copy the built DLL to AIMP's plugin directory (typically `%APPDATA%\AIMP\Plugins` or the AIMP installation `Plugins` folder). Enable the plugin in AIMP's plugin manager.
@@ -106,12 +120,12 @@ Copy the built DLL to AIMP's plugin directory (typically `%APPDATA%\AIMP\Plugins
 
 Server ports and bind addresses are compile-time constants defined in `src/core/Config.h`:
 
-| Constant           | Default    | Description                   |
-|--------------------|------------|-------------------------------|
-| `HTTP_HOST`        | `0.0.0.0`  | HTTP server bind address      |
-| `HTTP_PORT`        | `3553`     | HTTP server port              |
-| `WEBSOCKET_HOST`   | `0.0.0.0`  | WebSocket server bind address |
-| `WEBSOCKET_PORT`   | `3554`     | WebSocket server port         |
+| Constant           | Default     | Description                   |
+|--------------------|-------------|-------------------------------|
+| `HTTP_HOST`        | `127.0.0.1` | HTTP server bind address      |
+| `HTTP_PORT`        | `3553`      | HTTP server port              |
+| `WEBSOCKET_HOST`   | `127.0.0.1` | WebSocket server bind address |
+| `WEBSOCKET_PORT`   | `3554`      | WebSocket server port         |
 
 ## Project Structure
 

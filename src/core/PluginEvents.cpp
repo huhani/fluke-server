@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Plugin.h"
 #include "../helpers/TrackInfoHelper.h"
+#include "PlaybackQueueExtension.h"
 #include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
@@ -24,6 +25,11 @@ void WINAPI MyPlugin::CoreMessage(LongWord AMessage, int AParam1, void* AParam2,
     {
 
         json info = GetTrackInfo(this);
+
+        if (_playbackQueue)
+        {
+            _playbackQueue->OnStreamStart(info.value("filepath", ""));
+        }
 
         if (!info.empty())
         {
@@ -74,12 +80,12 @@ void WINAPI MyPlugin::CoreMessage(LongWord AMessage, int AParam1, void* AParam2,
         {
 
             // User seeked to a new position manually.
-            // AParam2 → float* (seconds)
+            // AParam2 → float* (seconds), sent as ms like the timer tick above
         case AIMP_MSG_PROPERTY_PLAYER_POSITION:
         {
             float pos = *static_cast<float*>(AParam2);
             BroadcastWS({ {"event", "position"},
-                         {"position", static_cast<double>(pos)},
+                         {"position", SecondsToMs(pos)},
                          {"seeked", true} });
             break;
         }

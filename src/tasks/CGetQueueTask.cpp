@@ -37,6 +37,9 @@ void WINAPI CGetQueueTask::Execute(IAIMPTaskOwner* Owner)
     IAIMPPlaylistQueue* queue = nullptr;
     if (FAILED(_plugin->GetCore()->QueryInterface(IID_IAIMPPlaylistQueue, (void**)&queue))) return;
 
+    // An empty queue is a valid result, not an error
+    _hasErrors = false;
+
     int itemCount = queue->GetItemCount();
 
     for (int i = 0; i < itemCount; i++)
@@ -77,14 +80,13 @@ void WINAPI CGetQueueTask::Execute(IAIMPTaskOwner* Owner)
 
                 json song = {
                     {"artist", artist},
-                    {"duration", duration},
+                    {"duration", SecondsToMs(duration)},
                     {"index", songIndex},
                     {"playlistId", playlistId},
                     {"title", title}
                 };
 
                 _results.push_back(song);
-                _hasErrors = false;
                 fileInfo->Release();
             }
             item->Release();

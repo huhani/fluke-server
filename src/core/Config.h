@@ -18,13 +18,13 @@ namespace Config
      * @brief Host address the HTTP server will bind to.
      *
      * Typical values:
-     * - "0.0.0.0"  : bind to all IPv4 interfaces (default)
-     * - "127.0.0.1": bind to localhost only
+     * - "0.0.0.0"  : bind to all IPv4 interfaces
+     * - "127.0.0.1": bind to localhost only (default: the API has no authentication)
      * - "::"       : bind to all IPv6 interfaces (may require an IPv6-capable socket)
      *
      * Note: This is a null-terminated string literal and a compile-time constant.
      */
-    constexpr const char* HTTP_HOST = "0.0.0.0";
+    constexpr const char* HTTP_HOST = "127.0.0.1";
 
     /**
      * @brief TCP port for the HTTP server.
@@ -41,7 +41,7 @@ namespace Config
      *
      * See `HTTP_HOST` for typical values and notes about IPv4/IPv6 bindings.
      */
-    constexpr const char* WEBSOCKET_HOST = "0.0.0.0";
+    constexpr const char* WEBSOCKET_HOST = "127.0.0.1";
 
     /**
      * @brief TCP port for the WebSocket server.

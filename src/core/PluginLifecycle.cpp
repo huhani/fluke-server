@@ -6,6 +6,8 @@
 #include "../routes/QueueRoutes.h"
 #include "../routes/TrackRoutes.h"
 #include "../routes/SystemRoutes.h"
+#include "../routes/PocRoutes.h"
+#include "PlaybackQueueExtension.h"
 #include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
@@ -119,6 +121,9 @@ HRESULT WINAPI MyPlugin::Initialize(IAIMPCore* Core)
         dispatcher->Release();
     }
 
+    // AIMP calls Initialize on its main thread; the id tells GetNext calls apart
+    _playbackQueue = new CPlaybackQueueExtension(this, GetCurrentThreadId());
+
     _wsServer = std::make_unique<ix::WebSocketServer>(Config::WEBSOCKET_PORT, Config::WEBSOCKET_HOST);
 
     ix::WebSocketPerMessageDeflateOptions defalteOptions(false);
@@ -173,6 +178,7 @@ HRESULT WINAPI MyPlugin::Initialize(IAIMPCore* Core)
     RegisterQueueRoutes(this, prefix + "/queue");
     RegisterTrackRoutes(this, prefix + "/tracks");
     RegisterSystemRoutes(this, prefix + "/system");
+    RegisterPocRoutes(this, prefix + "/poc");
 
     _httpThread = std::make_unique<std::thread>([this]()
     {
@@ -250,6 +256,15 @@ HRESULT WINAPI MyPlugin::Finalize()
     {
         std::lock_guard<std::mutex> lock(_wsMutex);
         _wsClients.clear();
+    }
+
+    // After the servers stopped (no route can reach it) and before _core is released
+    if (_playbackQueue)
+    {
+        _playbackQueue->SetRegistered(false);
+        _playbackQueue->ClearSlot();
+        _playbackQueue->Release();
+        _playbackQueue = nullptr;
     }
 
     IAIMPServiceMessageDispatcher* dispatcher = nullptr;
